@@ -47,21 +47,23 @@ resource "azurerm_network_security_group" "myterraformnsg" {
     location            = "${var.location}"
     resource_group_name = "${azurerm_resource_group.myterraformgroup.name}"
 
-    security_rule {
-        name                       = "SSH"
-        priority                   = 1001
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "Tcp"
-        source_port_range          = "*"
-        destination_port_range     = "22"
-        source_address_prefix      = "*"
-        destination_address_prefix = "*"
-    }
-
     tags {
         environment = "Terraform Demo"
     }
+}
+
+resource "azurerm_network_security_rule" "rdpRule" {
+    name = "rdpRule"
+    priority = 100
+    direction = "Inbound"
+    access = "Allow"
+    protocol = "Tcp"
+    source_port_range = "*"
+    destination_port_range = "3389"
+    source_address_prefix = "*"
+    destination_address_prefix = "*"
+    resource_group_name = "${azurerm_resource_group.myterraformgroup.name}"
+    network_security_group_name = "${azurerm_network_security_group.myterraformnsg.name}"
 }
 
 # Create network interface
@@ -129,24 +131,6 @@ resource "azurerm_virtual_machine" "myterraformvm" {
     version   = "latest"
   }
 
-/*
-    storage_image_reference {
-        publisher = "Canonical"
-        offer     = "UbuntuServer"
-        sku       = "16.04.0-LTS"
-        version   = "latest"
-    }
-*/
-
-  /*
-    os_profile_linux_config {
-        disable_password_authentication = true
-        ssh_keys {
-            path     = "/home/azureuser/.ssh/authorized_keys"
-            key_data = "ssh-rsa AAAAB3Nz{snip}hwhqT9h"
-        }
-    }
-  */
 
   os_profile {
     computer_name  = "${var.resource_group}-vm"
@@ -166,4 +150,10 @@ resource "azurerm_virtual_machine" "myterraformvm" {
     tags {
         environment = "Terraform Demo"
     }
+
+provisioner "local-exec" {
+    command = "Get-Date > completed.txt"
+    interpreter = ["PowerShell", "-Command"]
+  }
+  
 }

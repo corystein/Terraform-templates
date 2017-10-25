@@ -18,5 +18,5 @@ variable "sql_password" {
   default = "dJKb+kR}Dx;8yU,D"
 }
 
-variable "username" { default = "adminuser" }
-variable "password" { default = "Pass654321" }
+variable "username" { default = "vagrant" }
+variable "password" { default = "vagrant" }
